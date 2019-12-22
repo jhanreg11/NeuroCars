@@ -20,7 +20,7 @@ class Car {
       density: 1
     }
 
-    this.agent = None
+    this.agent = null
     this.body = world.createDynamicBody({userData: this,  position: position})
     this.body.createFixture(pl.Box(carConfig.width, carConfig.length), carShapeDef)
   }
@@ -112,7 +112,6 @@ class Car {
       y = point1.y - carConfig.rayLength *  Math.sin(currAngle)
       point2 = pl.Vec2(x, y)
       RayCastClosest.reset()
-      // console.log('point1', point1, 'point2', point2)
       this.body.getWorld().rayCast(point1, point2, RayCastClosest.callback)
 
       if (RayCastClosest.hit) {
@@ -120,7 +119,6 @@ class Car {
         draw ? testbed.drawSegment(point1, RayCastClosest.point, testbed.color(0.4, 0.9, 0.4)) : ''
       }
       else {
-        console.log(point2)
         locations[i] = carConfig.rayLength
         draw ? testbed.drawSegment(point1, point2, testbed.color(0.4, 0.9, 0.4)) : ''
       }
@@ -149,7 +147,6 @@ class Car {
   updateFitness(segmentBody) {
     if (segmentBody.getUserData() == this.agent.fitness)
       this.agent.fitness += 1
-    console.log(this.agent.fitness)
   }
 
   p5draw() {

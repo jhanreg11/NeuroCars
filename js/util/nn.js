@@ -2,7 +2,7 @@ class NN {
   constructor(layers, activation) {
     // set activation
     if (activation == undefined)
-      activation = Activations.tanh
+      activation = Activations.sigmoid
     this.activation = activation
 
     // if weights are already given
@@ -35,10 +35,8 @@ class NN {
     for (var i = 0; i < this.weights.length; ++i) {
       for (var j = 0; j < this.weights[i].rows.length; ++j) {
         for (var k = 0; k < this.weights[i].rows[j].length; ++k) {
-          if (Math.random() >= .5) {
-            console.log(i, j, k)
+          if (Math.random() >= .5)
             newNN.weights[i].set(other.weights[i].rows[j][k], j, k)
-          }
         }
       }
     }

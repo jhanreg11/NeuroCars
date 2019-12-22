@@ -8,10 +8,11 @@ const collisionCategories = {
 }
 
 class Track {
-  constructor(world, walls, checkpoints, startPoint, carNum) {
+  constructor(world, walls, checkpoints, startPoint) {
     this.walls = new Walls(world, walls)
     this.checkpoints = new Checkpoints(world, checkpoints)
-    this.cars = Array.from({length: carNum}, () => new Car(world, startPoint))
+    this.cars = null
+    this.startPoint = startPoint
 
     // walls event listener
     world.on('pre-solve', function (contact, oldManifold) {
@@ -23,7 +24,6 @@ class Track {
       var fixtureB = contact.getFixtureB()
       var categoryA = fixtureA.getFilterCategoryBits()
       var categoryB = fixtureB.getFilterCategoryBits()
-      console.log(categoryB, categoryA)
       if (categoryA == collisionCategories.car && categoryB == collisionCategories.wall)
         fixtureA.getBody().getUserData().kill()
       else if (categoryB == collisionCategories.car && categoryA == collisionCategories.wall)
@@ -43,6 +43,17 @@ class Track {
         fixtureB.getBody().getUserData().updateFitness(fixtureA.getBody())
     })
 
+  }
+
+  newGeneration(agents) {
+    var world = this.walls.body.getWorld()
+    if (this.cars != null)
+      this.cars.forEach((car) => world.destroyBody(car.body))
+    this.cars = new Array(agents.length)
+    for (var i = 0; i < agents.length; ++i) {
+      this.cars[i] = new Car(world, this.startPoint)
+      this.cars[i].agent = agents[i]
+    }
   }
 
 }
