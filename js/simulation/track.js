@@ -8,10 +8,10 @@ const collisionCategories = {
 }
 
 class Track {
-  constructor(world, walls, checkpoints, startPoint) {
+  constructor(world, walls, checkpoints, startPoint, carNum) {
     this.walls = new Walls(world, walls)
     this.checkpoints = new Checkpoints(world, checkpoints)
-    this.cars = null
+    this.cars = Array.from({length: carNum}, () => new Car(world, startPoint))
     this.startPoint = startPoint
 
     // walls event listener
@@ -45,14 +45,14 @@ class Track {
 
   }
 
-  newGeneration(agents) {
-    var world = this.walls.body.getWorld()
-    if (this.cars != null)
-      this.cars.forEach((car) => world.destroyBody(car.body))
-    this.cars = new Array(agents.length)
+  setAgents(agents) {
+    // var world = this.walls.body.getWorld()
+    // if (this.cars != null)
+    //   this.cars.forEach((car) => world.destroyBody(car.body))
     for (var i = 0; i < agents.length; ++i) {
-      this.cars[i] = new Car(world, this.startPoint)
+      this.cars[i].body.setPosition(this.startPoint)
       this.cars[i].agent = agents[i]
+      this.cars[i].body.setAwake(true)
     }
   }
 

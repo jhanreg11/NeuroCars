@@ -9,7 +9,7 @@ class Population {
   }
 
   evaulatePopulation() {
-    var totalFitness = this.population.reduce((a, b) => a.fitness + b.fitness, 0)
+    var totalFitness = this.population.reduce((a, b) => a + b.fitness, 0)
     this.population.sort((a, b) => b.fitness - a.fitness)
 
     if (this.population[0].fitness > this.topFitness) {
@@ -24,16 +24,15 @@ class Population {
   newPopulation() {
     this.evaulatePopulation()
     console.log('evaluated population')
-
+    console.log(this.population)
     this.population = this.population.map(() => this.createChild())
     console.log('created new population')
   }
 
   createChild() {
     // assumes evaluatePopulation has already been called
-
-    var parent1 = this.pickParent()
-    var parent2 = this.pickParent()
+    var parent1 = this.population[0]
+    var parent2 = this.population[1]
     while (parent2 == parent1)
       parent2 = this.pickParent()
 

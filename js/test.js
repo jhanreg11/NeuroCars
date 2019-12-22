@@ -16,7 +16,7 @@ planck.testbed(function(testbed) {
   var world = pl.World()
   var track = new Track(world, segments, goals, pl.Vec2(-55, -50), 100)
   var population = new Population(100, .15)
-  track.newGeneration(population.population)
+  track.setAgents(population.population)
   testbed.width = 200
   testbed.height = 200
 
@@ -24,25 +24,21 @@ planck.testbed(function(testbed) {
     stepCount++
     let decision
     let location
+    let generateNewPop = true
     for (var i = 0; i < track.cars.length; ++i) {
-      console.log(track.cars[i])
       location = track.cars[i].getLocation(testbed, false)
       decision = track.cars[i].agent.genAction(location, track.cars[i].body.getLinearVelocity().length())
       track.cars[i].update(decision.accel, decision.turn)
+      if (track.cars[i].agent.alive)
+        generateNewPop = false
     }
 
-    var newPopulation = true
-    for (var i = 0; i < track.cars.length; ++i) {
-      if (track.cars[i].agent.alive) {
-        newPopulation = false
-        break
-      }
-    }
-
-    if (newPopulation || stepCount > 100) {
+    if (generateNewPop || stepCount > 600) {
       console.log('starting new turn')
       population.newPopulation()
+      console.log('finishing generating new population')
       track.setAgents(population.population)
+      console.log('finished resetting cars')
       stepCount = 0
     }
   }
