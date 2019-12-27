@@ -51,6 +51,7 @@ class Track {
     //   this.cars.forEach((car) => world.destroyBody(car.body))
     for (var i = 0; i < agents.length; ++i) {
       this.cars[i].body.setPosition(this.startPoint)
+      this.cars[i].body.setAngle(0)
       this.cars[i].agent = agents[i]
       this.cars[i].body.setAwake(true)
     }

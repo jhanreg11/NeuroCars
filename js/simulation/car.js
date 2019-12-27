@@ -2,11 +2,11 @@ var pl = planck
 
 const ppu = 50
 const carConfig = {
-  maxForwardSpeed: 250,
-  maxBackwardSpeed: -40,
+  maxForwardSpeed: 15,
+  maxBackwardSpeed: -20,
   maxDriveForce: 500,
-  maxLateralImpulse: 2,
-  torque: 15,
+  maxLateralImpulse: 1,
+  torque: 10,
   length: 2.5,
   width: 1.25,
   rayLength: 20
@@ -23,6 +23,7 @@ class Car {
     this.agent = null
     this.body = world.createDynamicBody({userData: this,  position: position})
     this.body.createFixture(pl.Box(carConfig.width, carConfig.length), carShapeDef)
+    this.goalsHit = 0
   }
 
   getLateralVelocity() {
@@ -38,8 +39,8 @@ class Car {
   updateFriction() {
     // kill lateral velocity
     var impulse = this.getLateralVelocity().mul(-this.body.getMass())
-    if (impulse.length() > carConfig.maxLateralImpulse)
-      impulse.mul(carConfig.maxLateralImpulse / impulse.length())
+    // if (impulse.length() > carConfig.maxLateralImpulse)
+    //   impulse.mul(carConfig.maxLateralImpulse / impulse.length())
     this.body.applyLinearImpulse(impulse, this.body.getWorldCenter())
 
     // kill angular velocity
@@ -81,6 +82,8 @@ class Car {
   updateTurn(angle) {
     // console.log('turning')
     // find desired torque
+    if (this.body.getLinearVelocity().length() == 0)
+      return
     var desiredTorque = 0
     switch (angle) {
       case 1: desiredTorque = carConfig.torque; break;
@@ -129,24 +132,16 @@ class Car {
     return locations
   }
 
-  // Gen algo
-  setAgent(agent) {
-    this.body.setUserData(agent)
-  }
-
-  // Gen algo
-  getAgent() {
-    return this.body.getUserData()
-  }
-
   kill() {
     this.body.setAwake(false)
     this.agent.alive = false
   }
 
   updateFitness(segmentBody) {
-    if (segmentBody.getUserData() == this.agent.fitness)
+    if (segmentBody.getUserData() == this.goalsHit) {
+      this.goalsHit++
       this.agent.fitness += 1
+    }
   }
 
   p5draw() {

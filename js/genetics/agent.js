@@ -1,7 +1,7 @@
 class Agent {
   constructor(brain) {
     if (typeof brain == 'undefined')
-        brain = new NN([6, 5, 4])
+        brain = new NN([5, 4, 2])
     this.brain = brain
     this.alive = true
     this.fitness = 0
@@ -20,21 +20,27 @@ class Agent {
   }
 
   genAction(locations, velocity) {
-    locations.push(velocity)
+    locations = locations.map((x) => x /= carConfig.rayLength)
+    velocity /= carConfig.maxForwardSpeed
+    this.fitness += locations.reduce((accum, local) => accum + local, 0)
+    // locations.push(velocity)
+
     var brainOutput = this.brain.ff(locations)
-    var accel = 0
-    var turn = 0
+    var decision = {}
 
-    if (brainOutput[0] > 0.5)
-      accel = 1
-    else if (brainOutput[1] > 0.5)
-      accel = -1
+    if (brainOutput[0] > 0.25)
+      decision.accel = 1
+    else if (brainOutput[0] < -0.25)
+      decision.accel = -1
 
-    if (brainOutput[2] > 0.5)
-      turn = 1
-    else if (brainOutput[3] > 0.5)
-      turn = -1
+    if (brainOutput[1] > 0.25) {
+      decision.turn = 1
+    }
+    else if (brainOutput[1] < -0.25) {
+      decision.turn = -1
+    }
 
-    return {accel: accel, turn: turn}
+    return decision
   }
+
 }
