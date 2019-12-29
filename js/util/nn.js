@@ -41,7 +41,21 @@ class NN {
         }
       }
     }
-
+    // var mat = Math.floor(Math.random() * this.weights.length)
+    // var row = Math.floor(Math.random() * this.weights[mat].length)
+    // var col = Math.floor(Math.random() * this.weights[mat].rows[row].length)
+    //
+    // for (var k = col; j < this.weights[mat].rows[row].length; ++k)
+    //   this.weights[mat].set(other.weights[i].rows[j][k], row, k)
+    //
+    // for (var j = row + 1; j < this.weights[mat].rows.length; ++j) {
+    //   for (var k = 0; k < this.weights[mat].rows[j].length; ++k)
+    //     this.weights[mat].set(other.weights[i].rows[j][k], j, k)
+    // }
+    //
+    // for (var i = mat + 1; i < this.weights.length; ++i) {
+    //   for (var j = 0; j < )
+    // }
     return newNN
   }
 
@@ -55,4 +69,31 @@ class NN {
       }
     }
   }
+
+  serialize() {
+    var returnString = ''
+    for (var i = 0; i < this.weights.length; ++i) {
+      for (var j = 0; j < this.weights[i].rows.length; ++j) {
+        for (var k = 0; k < this.weights[i].rows[j].length; ++k) {
+          returnString += this.weights[i].rows[j][k] + ' '
+        }
+      }
+    }
+
+    return returnString
+  }
+
+  deserialize(serialized_nn) {
+    var tokens = serialized_nn.split(' ')
+    var tokenCounter = 0
+    for (var i = 0; i < this.weights.length; ++i) {
+      for (var j = 0; j < this.weights[i].rows.length; ++j) {
+        for (var k = 0; k < this.weights[i].rows[j].length; ++k) {
+          this.weights[i].rows[j][k] = Number(tokens[tokenCounter++])
+        }
+      }
+    }
+  }
+
+
 }

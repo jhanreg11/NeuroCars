@@ -39,6 +39,7 @@ class Population {
     if (this.population[0].fitness > this.topFitness) {
       this.topFitness = this.population[0].fitness
       this.topPerformer = this.population[0]
+      updateUI('#top-fitness', String(Math.round(this.topFitness * 100) / 100))
     }
 
     if (totalFitness)
@@ -54,12 +55,12 @@ class Population {
     this.population = this.population.map(() => this.createChild())
 
     // ensure variance in new populations
-    for (var i = 0; i < 5; ++i)
+    for (var i = 0; i < 10; ++i)
       this.population[i] = new Agent()
 
     // ensure that top performers are more favored in new population
-    for (var i = 5; i < 10; ++i)
-      this.population[i] = topPerformer1.reproduce(topPerformer2, this.mutationRate)
+    // for (var i = 5; i < 15; ++i)
+    //   this.population[i] = topPerformer1.reproduce(topPerformer2, this.mutationRate)
 
     console.log('created new population')
   }
@@ -89,12 +90,12 @@ class Population {
       return this.population[i]
     }
 
-    var target = Math.random() * .75
+    var target = Math.random() * 0.75 // multiplied by 0.5 to decrerase chance of lower ranking agents being chosen
     var curr = 0
     var i = 0
     while (curr < target)
       curr += this.population[i++].fitness
-    console.log(i-1)
+    // console.log(i-1)
     return this.population[i - 1]
   }
 }

@@ -2,7 +2,7 @@ var pl = planck
 
 const ppu = 50
 const carConfig = {
-  maxForwardSpeed: 15,
+  maxForwardSpeed: 10,
   maxBackwardSpeed: -20,
   maxDriveForce: 500,
   maxLateralImpulse: 1,

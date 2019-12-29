@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link rel="stylesheet" type="text/css" href="css/index.css">
+  <!---Third Party Libs--->
   <script src="https://cdn.jsdelivr.net/npm/planck-js@0.2/dist/planck-with-testbed.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js" integrity="sha256-UZcJhkL1z2sBS6X+IfDoYsN3G8Cliast0jio7GtJUSc=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+  <script src="js/index.js"></script>
+  <!--self-made libs--->
   <script src="js/genetics/agent.js"></script>
   <script src="js/genetics/population.js"></script>
   <script src="js/simulation/raycast.js"></script>
@@ -13,8 +19,98 @@
   <script src="js/util/mat.js"></script>
   <script src="js/util/nn.js"></script>
   <script src="js/simulation/track.js"></script>
+  <script src="js/simulation.js"></script>
+
   </head>
 <body>
-  <script src="js/test.js"></script>
+  <div id="title">NeuroCars</div>
+  <div id="description">
+    NeuroCars is a personal project that demonstrates
+    <a href="https://en.wikipedia.org/wiki/Neuroevolution" target="_blank">neuroevolution</a>
+     using <a href="http://piqnt.com/planck.js/" target="_blank">planck.js</a> for physics simulations.
+    <br>
+    <br>
+    In the simulation, self-driving cars contain brains (neural networks) that control their steering while they try to
+    successfully navigate a track. Input into the brains:
+    distances to the nearest track wall in 5 directions. Output: whether to turn right, left, or do nothing. After each
+    iteration, a fitness score is assigned to each bot proportional to
+    how long they stayed alive and how far they traveled, higher fitness scores make a bot more likely to reproduce.
+  </div>
+  <br>
+  <div id="source"><a href="https://github.com/jhanreg11/NeuroCar" target="_blank">Source code is available here</a></div>
+  <br>
+  <div id="simulation-container">
+    <div id="data-container">
+      <div id="options">
+        <div class="option">
+          <div class="desc">Track:</div>
+          <select id="track-select">
+            <option value="0">Track 1 (easy)</option>
+            <option value="1">Track 2 (medium)</option>
+            <option value="2">Track 3 (hard)</option>
+          </select>
+        </div>
+
+        <div class="option">
+          <div class="desc">Training level:</div>
+          <select id="train-select">
+            <option value="0">Start from scratch</option>
+            <option value="1">Semi-trained model</option>
+            <option value="2">Fully-trained model</option>
+          </select>
+        </div>
+
+        <div class="option">
+          <div class="desc">Generation Size:</div>
+          <select id="size-select">
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="150">150</option>
+            <option value="200">200</option>
+          </select>
+        </div>
+
+        <div class="option">
+          <div class="desc">Mutation Rate:</div>
+          <select id="mut-select">
+            <option value="0">0</option>
+            <option value="0.05">0.05</option>
+            <option value="0.15">0.15</option>
+            <option value="0.30">0.3</option>
+            <option value="0.50">0.5</option>
+            <option value="0.75">0.75</option>
+            <option value="1">1</option>
+          </select>
+        </div>
+      </div>
+      <br>
+      <div id="stats">
+        <div class="stat">
+          <div class="desc">Goal:</div>
+          <div class="data" id="goal">Navigate track to completion.</div>
+        </div>
+
+        <div class="stat">
+          <div class="desc">Current generation:</div>
+          <div class="data" id="generation">0</div>
+        </div>
+
+        <div class="stat">
+          <div class="desc">Top fitness (all-time):</div>
+          <div class="data" id="top-fitness">0.00</div>
+        </div>
+
+        <div class="stat">
+          <div class="desc">Average fitness (current gen):</div>
+          <div class="data" id="avg-fitness">0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <canvas id="stage"></canvas>
+
+  </div>
+
+  <script src="js/main.js"></script>
 </body>
 </html>

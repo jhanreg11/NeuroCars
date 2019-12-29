@@ -1,12 +1,14 @@
-// main class connecting simulation and neuroevolution
-
 var pl = planck
 
-class Main {
-    constructor(wallSegments, goalSegments, startPoint, populationSize, mutationRate) {
-        this.world = pl.World()
-        this.track = new Track(world, wallSegments, goalSegments, startPoint, populationSize)
-        this.evolutionPopulation = new Population(populationSize, mutationRate)
-        this.track.setAgents()
-    }
-}
+var simulation = new Simulation(0, 150, .15)
+var popSize
+planck.testbed(function(testbed) {
+  testbed.debug = true
+  testbed.width = 150
+  testbed.height = 150
+	testbed.lineWidth = 1000
+  testbed.step = function() {
+    simulation.update()
+  }
+  return simulation.world
+})
