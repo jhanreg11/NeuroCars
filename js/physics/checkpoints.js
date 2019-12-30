@@ -19,6 +19,7 @@ class Checkpoints {
       segmentDef.shape = pl.Edge(p1, p2)
       this.bodies[i] = world.createBody({userData: i})
       this.bodies[i].createFixture(segmentDef)
+      this.bodies[i].render = {stroke: '#00cc00'}
     }
   }
 }

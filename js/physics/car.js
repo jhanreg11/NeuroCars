@@ -1,6 +1,7 @@
 var pl = planck
 
 const ppu = 50
+
 const carConfig = {
   maxForwardSpeed: 10,
   maxBackwardSpeed: -20,
@@ -12,8 +13,20 @@ const carConfig = {
   rayLength: 20
 }
 
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
 class Car {
-  constructor(world, position) {
+  constructor(world, position, angle) {
+    if (typeof angle == 'undefined')
+      angle = 0
+
     var carShapeDef = {
       filterCategoryBits: collisionCategories.car,
       filterMaskBits: collisionCategories.wall,
@@ -21,9 +34,10 @@ class Car {
     }
 
     this.agent = null
-    this.body = world.createDynamicBody({userData: this,  position: position})
+    this.body = world.createDynamicBody({userData: this,  position: position, angle: angle})
     this.body.createFixture(pl.Box(carConfig.width, carConfig.length), carShapeDef)
     this.goalsHit = 0
+    this.body.render = {fill: getRandomColor(), stroke: '#000000', width: '10px'}
   }
 
   getLateralVelocity() {
@@ -140,7 +154,7 @@ class Car {
   updateFitness(segmentBody) {
     if (segmentBody.getUserData() == this.goalsHit) {
       this.goalsHit++
-      this.agent.fitness += 1
+      // this.agent.fitness += 1
     }
   }
 

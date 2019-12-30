@@ -10,6 +10,7 @@ class Walls {
     }
 
     this.body = world.createBody()
+    this.body.render = {stroke: '#000000', radius: '5px'}
     let body = this.body
     let p1
     let p2

@@ -93,7 +93,11 @@ class NN {
         }
       }
     }
+    return this
   }
 
-
+  copy() {
+    console.log(this)
+    return this.crossover(this)
+  }
 }

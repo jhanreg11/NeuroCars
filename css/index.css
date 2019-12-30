@@ -58,12 +58,12 @@ a:hover {
 #data-container {
   display: flex;
   flex-direction: column;
-  width: 30%;
+  width: 25%;
   margin-right: 2%
 }
 
 #stage {
-  width: 68%;
+  width: 73%;
   border-style: solid;
 }
 

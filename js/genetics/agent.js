@@ -2,6 +2,8 @@ class Agent {
   constructor(brain) {
     if (typeof brain == 'undefined')
         brain = new NN([5, 4, 2])
+    else if (typeof brain == 'string')
+      brain = new NN([5, 4, 2]).deserialize(brain)
     this.brain = brain
     this.alive = true
     this.fitness = 0
@@ -22,7 +24,7 @@ class Agent {
   genAction(locations, velocity) {
     locations = locations.map((x) => x /= carConfig.rayLength)
     velocity /= carConfig.maxForwardSpeed
-    this.fitness += locations.reduce((accum, local) => accum + local, 0)
+    this.fitness += locations.reduce((accum, local) => accum + local, 0) * .025
     // locations.push(velocity)
 
     var brainOutput = this.brain.ff(locations)

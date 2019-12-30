@@ -9,16 +9,16 @@
 
   <script src="js/index.js"></script>
   <!--self-made libs--->
+  <script src="js/util/mat.js"></script>
+  <script src="js/util/activations.js"></script>
+  <script src="js/util/nn.js"></script>
   <script src="js/genetics/agent.js"></script>
   <script src="js/genetics/population.js"></script>
-  <script src="js/simulation/raycast.js"></script>
-  <script src="js/simulation/car.js"></script>
-  <script src="js/simulation/walls.js"></script>
-  <script src="js/simulation/checkpoints.js"></script>
-  <script src="js/util/activations.js"></script>
-  <script src="js/util/mat.js"></script>
-  <script src="js/util/nn.js"></script>
-  <script src="js/simulation/track.js"></script>
+  <script src="js/physics/raycast.js"></script>
+  <script src="js/physics/car.js"></script>
+  <script src="js/physics/walls.js"></script>
+  <script src="js/physics/checkpoints.js"></script>
+  <script src="js/physics/track.js"></script>
   <script src="js/simulation.js"></script>
 
   </head>
@@ -31,7 +31,7 @@
     <br>
     <br>
     In the simulation, self-driving cars contain brains (neural networks) that control their steering while they try to
-    successfully navigate a track. Input into the brains:
+    navigate a track without touching the walls. Input into the brains:
     distances to the nearest track wall in 5 directions. Output: whether to turn right, left, or do nothing. After each
     iteration, a fitness score is assigned to each bot proportional to
     how long they stayed alive and how far they traveled, higher fitness scores make a bot more likely to reproduce.
@@ -45,18 +45,16 @@
         <div class="option">
           <div class="desc">Track:</div>
           <select id="track-select">
-            <option value="0">Track 1 (easy)</option>
-            <option value="1">Track 2 (medium)</option>
-            <option value="2">Track 3 (hard)</option>
+            <option value="0" selected="selected">Track 1 (easy)</option>
+            <option value="1">Track 2 (hard)</option>
           </select>
         </div>
 
         <div class="option">
           <div class="desc">Training level:</div>
           <select id="train-select">
-            <option value="0">Start from scratch</option>
-            <option value="1">Semi-trained model</option>
-            <option value="2">Fully-trained model</option>
+            <option value="rand" selected="selected">Start from scratch</option>
+            <option value="full">Fully-trained model</option>
           </select>
         </div>
 
@@ -65,7 +63,7 @@
           <select id="size-select">
             <option value="50">50</option>
             <option value="100">100</option>
-            <option value="150">150</option>
+            <option value="150" selected="selected">150</option>
             <option value="200">200</option>
           </select>
         </div>
@@ -75,7 +73,7 @@
           <select id="mut-select">
             <option value="0">0</option>
             <option value="0.05">0.05</option>
-            <option value="0.15">0.15</option>
+            <option value="0.15" selected="selected">0.15</option>
             <option value="0.30">0.3</option>
             <option value="0.50">0.5</option>
             <option value="0.75">0.75</option>
@@ -90,6 +88,15 @@
           <div class="data" id="goal">Navigate track to completion.</div>
         </div>
 
+        <div class="stat">
+          <div class="desc">Status:</div>
+          <div class="data" id="status">Not completed.</div>
+        </div>
+
+        <div class="stat">
+          <div class="desc">Turn time limit:</div>
+          <div class="data" id="time-limit">10 seconds</div>
+        </div>
         <div class="stat">
           <div class="desc">Current generation:</div>
           <div class="data" id="generation">0</div>
