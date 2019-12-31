@@ -1,17 +1,3 @@
-var pl = planck
-
-const ppu = 50
-
-const carConfig = {
-  maxForwardSpeed: 10,
-  maxBackwardSpeed: -20,
-  maxDriveForce: 500,
-  maxLateralImpulse: 1,
-  torque: 10,
-  length: 2.5,
-  width: 1.25,
-  rayLength: 20
-}
 
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
@@ -157,14 +143,4 @@ class Car {
       // this.agent.fitness += 1
     }
   }
-
-  p5draw() {
-    var position = this.body.getPosition()
-    angleMode(RADIANS)
-    rectMode(RADIUS)
-    fill(0, 255, 0)
-    rotate(this.body.getAngle())
-    rect(position.x * ppu, position.y * ppu, carConfig.width * ppu, carConfig.length * ppu)
-  }
-
 }

@@ -1,3 +1,5 @@
+var canAlert = true
+
 function updateUI(element, value) {
 	$(element).html(value)
 }
@@ -14,8 +16,6 @@ function resetStats() {
 
 	canAlert = true
 }
-
-canAlert = true
 
 $(document).ready(function() {
 	$('#track-select').change(function() {

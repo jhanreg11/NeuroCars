@@ -1,5 +1,3 @@
-var planck = pl
-
 class Checkpoints {
   constructor(world, segments) {
     // segments: list of 2x2 lists representing segment endpoints

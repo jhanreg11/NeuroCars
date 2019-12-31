@@ -1,107 +1,125 @@
-// main class connecting simulation and neuroevolution
-
-var pl = planck
-
+/** Main class used to connect track, population, and demo */
 class Simulation {
-    constructor(trackNumber, populationSize, mutationRate) {
-      this.world = pl.World()
-      this.id = trackNumber
-      this.track = new Track(this.world, trackNumber, populationSize)
-      this.population = new Population(populationSize, mutationRate)
+  /**
+   * Create a Simulation.
+   * @param {number} trackNumber - index in tracks list that contains track information. [0, 1]
+   * @param {number} populationSize - generation size for simulation.
+   * @param {number} mutationRate - mutation rate for population. [0, 1]
+   */
+  constructor(trackNumber, populationSize, mutationRate) {
+    this.world = pl.World()
+    this.trackId = trackNumber
+    this.track = new Track(this.world, trackNumber, populationSize)
+    this.population = new Population(populationSize, mutationRate)
+    this.track.setAgents(this.population.population)
+    this.frameCount = 0
+    this.iteration = 0
+  }
+
+  /**
+   * execute one frame of simulation.
+   */
+  update() {
+    this.frameCount++
+    let generateNewPop = true
+    this.track.cars.map(function(car) {
+      let decision = car.agent.genAction(car.getLocation())
+      car.update(1, decision)
+      if (car.agent.alive)
+        generateNewPop = false
+    })
+
+    if (generateNewPop || this.frameCount > 900 + (300 * this.trackId)) {
+      updateUI('#generation', String(++this.iteration))
+      var avgFitness = this.population.population.reduce((accum, agent) => accum + agent.fitness, 0) / this.population.population.length
+      avgFitness = Math.round(avgFitness * 100) / 100
+      updateUI('#avg-fitness', String(avgFitness))
+
+      this.population.newGeneration()
       this.track.setAgents(this.population.population)
       this.frameCount = 0
-      this.iteration = 0
-
-      this.canAlert = true
-
-      console.log(this.population.size, this.track.cars.length)
     }
 
-    update() {
-      this.frameCount++
-      let generateNewPop = true
-			this.track.cars.map(function(car) {
-        let decision = car.agent.genAction(car.getLocation(), car.body.getLinearVelocity().length)
-        car.update(1, decision.turn)
-				if (car.agent.alive)
-				  generateNewPop = false
-      })
+    this.world.step(1.0/60)
+  }
 
-      if (generateNewPop || this.frameCount > 900 + (300 * this.id)) {
-        updateUI('#generation', String(++this.iteration))
-        var avgFitness = this.population.population.reduce((accum, agent) => accum + agent.fitness, 0) / this.population.population.length
-        avgFitness = Math.round(avgFitness * 100) / 100
-        updateUI('#avg-fitness', String(avgFitness))
-        this.population.newPopulation()
-        this.track.setAgents(this.population.population)
-        this.frameCount = 0
-      }
+  /**
+   * load pretrained population
+   * @param {string} level - level of training for population.
+   */
+  loadModel(level) {
+    if (level == 'rand')
+      this.population.newRandomGeneration()
+    else
+      this.population.newPretrainedPopulation(this.trackId)
 
-      this.world.step(1.0/60)
+    this.track.setAgents(this.population.population)
+
+    this.frameCount = 0
+    this.iteration = 0
+  }
+
+  /**
+   * Change mutation rate for population.
+   * @param {number} rate - new mutation rate. [0, 1]
+   */
+  changeMutationRate(rate) {
+    this.population.mutationRate = rate
+  }
+
+  /**
+   * Change generation size for population/track.
+   * @param {number} size - new size.
+   */
+  changeGenerationSize(size) {
+    if (size == this.getPopSize())
+      return
+
+    this.frameCount = 0
+    var sizeDiff = size - this.getPopSize()
+
+    if (sizeDiff > 0) {
+      this.population.addAgents(sizeDiff)
+      this.track.addCars(sizeDiff)
+      this.track.setAgents(this.population.population)
     }
-
-    loadModel(type) {
-      if (type == 'rand')
-        this.population.newRandomPopulation()
-      else
-        this.population.newPretrainedPopulation(this.id, type)
-
-			this.track.setAgents(this.population.population)
-
-      this.frameCount = 0
-      this.iteration = 0
-    }
-
-    changeMutationRate(rate) {
-      this.population.mutationRate = rate
-    }
-
-    changeGenerationSize(size) {
-      console.log('changing generation size to', size, 'current population size', this.getPopSize())
-      if (size == this.getPopSize())
-        return
-
-      this.frameCount = 0
-      var sizeDiff = size - this.getPopSize()
-      console.log('size difference', sizeDiff)
-
-      if (sizeDiff > 0) {
-        console.log('adding bots')
-        this.population.addAgents(sizeDiff)
-        this.track.addCars(sizeDiff)
-        this.track.setAgents(this.population.population)
-      }
-      else if (sizeDiff < 0) {
-        sizeDiff = Math.abs(sizeDiff)
-        console.log('deleting bots')
-        this.population.deleteAgents(sizeDiff)
-        this.track.deleteCars(sizeDiff)
-        this.track.setAgents(this.population.population)
-      }
-
-      this.track.moveCarsToStart()
-      this.population.resetAgentStats()
-
-      console.log('new population size', this.population.size, 'new car number', this.track.cars.length)
-    }
-
-    changeTrack(trackNumber) {
-      console.log('change track called')
-      this.id = trackNumber
-      this.frameCount = 0
-      this.iteration = 0
-
-      this.track.destroyBodies()
-      this.track = new Track(this.world, trackNumber, this.getPopSize())
-      this.population.newRandomPopulation()
+    else if (sizeDiff < 0) {
+      sizeDiff = Math.abs(sizeDiff)
+      this.population.deleteAgents(sizeDiff)
+      this.track.deleteCars(sizeDiff)
       this.track.setAgents(this.population.population)
     }
 
-    getPopSize() {
-      return this.population.size
-    }
+    this.track.moveCarsToStart()
+    this.population.resetAgentStats()
+  }
 
-    getMutationRate() {
-      return this.population.mutationRate
-    }
+  /**
+   * Change current track.
+   * @param {number} trackNumber - index for new track. [0, 1]
+   */
+  changeTrack(trackNumber) {
+    this.trackId = trackNumber
+    this.frameCount = 0
+    this.iteration = 0
+
+    this.track.destroyBodies()
+    this.track = new Track(this.world, trackNumber, this.getPopSize())
+    this.population.newRandomGeneration()
+    this.track.setAgents(this.population.population)
+  }
+
+  /**
+   * Get population size.
+   */
+  getPopSize() {
+    return this.population.size
+  }
+
+  /**
+   * Get mutation rate.
+   */
+  getMutationRate() {
+    return this.population.mutationRate
+  }
 }
