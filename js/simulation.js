@@ -12,6 +12,8 @@ class Simulation {
       this.frameCount = 0
       this.iteration = 0
 
+      this.canAlert = true
+
       console.log(this.population.size, this.track.cars.length)
     }
 
@@ -25,7 +27,7 @@ class Simulation {
 				  generateNewPop = false
       })
 
-      if (generateNewPop || this.frameCount > 1000) {
+      if (generateNewPop || this.frameCount > 900 + (300 * this.id)) {
         updateUI('#generation', String(++this.iteration))
         var avgFitness = this.population.population.reduce((accum, agent) => accum + agent.fitness, 0) / this.population.population.length
         avgFitness = Math.round(avgFitness * 100) / 100
@@ -84,20 +86,15 @@ class Simulation {
     }
 
     changeTrack(trackNumber) {
+      console.log('change track called')
       this.id = trackNumber
-      this.track.destroyBodies()
-      this.population = new Population(this.getPopSize(), this.getMutationRate())
-      this.track = new Track(this.world, trackNumber, this.getPopSize())
       this.frameCount = 0
       this.iteration = 0
 
-      if (this.semiTrain)
-        this.loadSemiTrained()
-      else if (this.fullTrain)
-        this.loadFullyTrained()
-      else
-        this.loadNoTrained()
-
+      this.track.destroyBodies()
+      this.track = new Track(this.world, trackNumber, this.getPopSize())
+      this.population.newRandomPopulation()
+      this.track.setAgents(this.population.population)
     }
 
     getPopSize() {

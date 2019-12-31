@@ -1,9 +1,10 @@
+const brainArchitecture = [5, 4, 2]
 class Agent {
   constructor(brain) {
     if (typeof brain == 'undefined')
-        brain = new NN([5, 4, 2])
+        brain = new NN(brainArchitecture)
     else if (typeof brain == 'string')
-      brain = new NN([5, 4, 2]).deserialize(brain)
+      brain = new NN(brainArchitecture).deserialize(brain)
     this.brain = brain
     this.alive = true
     this.fitness = 0

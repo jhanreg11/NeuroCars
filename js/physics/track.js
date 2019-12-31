@@ -21,9 +21,17 @@ const tracks = [
   },
   {
     id: 1,
-    walls: [],
-    checkpoints: [],
-    startPoint: pl.Vec2(0, 0),
+    walls: [[[60, -20], [60, 0]], [[60, 0], [43.8, 25.3]], [[43.8, 25.3], [24.5, 29.3]], [[24.5, 29.3], [39.6, 0]],
+      [[39.6, 0], [14.6, -53.2]], [[14.6, -53.2], [-2.2, -21.2]], [[-2.2, -21.2], [-1.7, -7.2]],
+      [[-1.7, -7.2], [-28.8, -7.5]], [[-28.8, -7.5], [-29, 20]], [[-29, 20], [-30, 25.3]], [[-30, 25.3], [-55, 14.4]],
+      [[-55, 14.4], [-68.2, -7.5]], [[-68.2, -7.5], [-59.7, -10.8]], [[-59.7, -10.8], [-40.1, -5.1]],
+      [[-40.1, -5.1], [-10, -20]], [[-10, -20], [-10, -35]], [[-10, -35], [-20, -35]], [[-20, -35], [-20, -25]],
+      [[-20, -25], [-40, -15]], [[-40, -15], [-60, -20.1]], [[-60, -20.1], [-79.9, -10.5]],
+      [[-79.9, -10.5], [-59.7, 20.6]], [[-59.7, 20.6], [-20, 40]], [[-20, 40], [-17.5, 20]], [[-17.5, 20], [-15.6, 2.7]],
+      [[-15.6, 2.7], [6.8, 2.7]], [[6.8, 2.7], [7.3, -21]], [[7.3, -21], [14.3, -35.8]], [[14.3, -35.8], [29, 0]],
+      [[29, 0], [13.1, 39.2]], [[13.1, 39.2], [50.2, 32.4]], [[50.2, 32.4], [70, 0]], [[70, 0], [70, -20]]],
+    checkpoints: [[[70, -20], [60, -20]]],
+    startPoint: pl.Vec2(-15, -30),
     startAngle: 0,
   },
 ]
@@ -82,14 +90,28 @@ class Track {
 
       if (categoryA == collisionCategories.car && categoryB == collisionCategories.goal) {
         updateUI('#status', 'Completed!')
-        var nn = fixtureA.getBody().getUserData().agent.brain.serialize()
-        download(nn, 'fullytrain.txt', 'text/plain')
+        console.log(canAlert)
+				if (canAlert) {
+				  var nn = fixtureA.getBody().getUserData().agent.brain.serialize()
+          download(nn, 'fullytrain.txt', 'text/plain')
+				  alert('Goal completed!')
+					canAlert = false
+        }
+        // var nn = fixtureA.getBody().getUserData().agent.brain.serialize()
+        // download(nn, 'fullytrain.txt', 'text/plain')
         // fixtureA.getBody().getUserData().updateFitness(fixtureB.getBody())
       }
       else if (categoryB == collisionCategories.car && categoryA == collisionCategories.goal) {
+        console.log(canAlert)
         updateUI('#status', 'Completed!')
-        var nn = fixtureB.getBody().getUserData().agent.brain.serialize()
-        download(nn, 'fullytrain.txt', 'text/plain')
+        if (canAlert) {
+          var nn = fixtureB.getBody().getUserData().agent.brain.serialize()
+          download(nn, 'fullytrain.txt', 'text/plain')
+				  alert('Goal completed!')
+					canAlert = false
+        }
+        // var nn = fixtureB.getBody().getUserData().agent.brain.serialize()
+        // download(nn, 'fullytrain.txt', 'text/plain')
         // fixtureB.getBody().getUserData().updateFitness(fixtureA.getBody())
       }
     })

@@ -9,14 +9,20 @@ function resetStats() {
 
 	$('#generation').html('0')
 	$('#goal').html('Navigate track to completion.')
-	$('#time-limit').html('10 seconds')
+	$('#time-limit').html(15 + (5 * simulation.id) + ' seconds')
 	$('#status').html('Not completed.')
+
+	canAlert = true
 }
+
+canAlert = true
 
 $(document).ready(function() {
 	$('#track-select').change(function() {
 		simulation.changeTrack(Number($(this).val()))
 		resetStats()
+
+		$('#train-select').val('rand')
 	})
 
 	$('#train-select').change(function () {

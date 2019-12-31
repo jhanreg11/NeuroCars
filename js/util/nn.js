@@ -97,7 +97,14 @@ class NN {
   }
 
   copy() {
-    console.log(this)
-    return this.crossover(this)
+  	var newNN = new NN(brainArchitecture)
+    for (var i = 0; i < this.weights.length; ++i) {
+      for (var j = 0; j < this.weights[i].rows.length; ++j) {
+        for (var k = 0; k < this.weights[i].rows[j].length; ++k) {
+          newNN.weights[i].rows[j][k] = this.weights[i].rows[j][k]
+        }
+      }
+    }
+    return newNN
   }
 }
