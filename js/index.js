@@ -11,7 +11,7 @@ function resetStats() {
 
 	$('#generation').html('0')
 	$('#goal').html('Navigate track to completion.')
-	$('#time-limit').html(15 + (5 * simulation.id) + ' seconds')
+	$('#time-limit').html(15 + (5 * simulation.trackId) + ' seconds')
 	$('#status').html('Not completed.')
 
 	canAlert = true
