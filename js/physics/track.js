@@ -57,6 +57,7 @@ class Track {
       if ((categoryA == collisionCategories.car && categoryB == collisionCategories.goal)
         || (categoryB == collisionCategories.car && categoryA == collisionCategories.goal)) {
         updateUI('#status', 'Completed!')
+        console.log(contact.getFixtureA().getBody().getUserData(), contact.getFixtureB().getBody().getUserData())
 				if (canAlert) {
 				  alert('Goal completed!')
 					canAlert = false

@@ -1,6 +1,11 @@
+/** Class for creating goals/checkpoints in track. */
 class Checkpoints {
+  /**
+   * Create group of checkpoints
+   * @param {pl.World} world - world to add bodies to.
+   * @param {Array} segments - list of line segments representing each goal (see trackinfo.js for list structure).
+   */
   constructor(world, segments) {
-    // segments: list of 2x2 lists representing segment endpoints
     var segmentDef = {
       filterCategoryBits: collisionCategories.goal,
       filterMaskBits: collisionCategories.car,

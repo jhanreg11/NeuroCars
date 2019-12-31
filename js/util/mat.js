@@ -1,5 +1,10 @@
+/** Class for creating 2d matrices. */
 class Matrix {
-  // initialize nxm matrix w/ values from -1 to 1
+  /**
+   * Create matrix of random numbers.
+   * @param {Number} rowNum - number of rows.
+   * @param {Number} colNum - number of columns.
+   */
   constructor(rowNum, colNum) {
     this.rows = new Array(rowNum)
     for (let i = 0; i < rowNum; ++i) {
@@ -10,17 +15,34 @@ class Matrix {
     }
   }
 
+  /**
+   * multiply matrix by vector.
+   * @param {Array} vec - vector.
+   * @returns {Array} output vector.
+   */
   mul(vec) {
     if (vec.length != this.rows[0].length)
       return null
     return this.rows.map(row => dot(row, vec))
   }
 
+  /**
+   * set value of matrix entry.
+   * @param {Number} val - value.
+   * @param {Number} i - row index.
+   * @param {Number} j - column index.
+   */
   set(val, i, j) {
     this.rows[i][j] = val
   }
 }
 
+/**
+ * dot product of 2 vectors.
+ * @param {Array} v1 - vector 1.
+ * @param {Array} v2 - vector 2.
+ * @returns {null|number} null for invalid args, dot product otherwise.
+ */
 function dot(v1, v2) {
   if (v1.length != v2.length)
     return null

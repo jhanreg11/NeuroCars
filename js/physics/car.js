@@ -1,146 +1,180 @@
-
+/**
+ * Creates a string of a random hex number.
+ * @returns {string} hex color (including #).
+ */
 function getRandomColor() {
-  var letters = '0123456789ABCDEF';
-  var color = '#';
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
+	var letters = '0123456789ABCDEF';
+	var color = '#';
+	for (var i = 0; i < 6; i++) {
+		color += letters[Math.floor(Math.random() * 16)];
+	}
+	return color;
 }
 
+/** Car class for physics simulations. */
 class Car {
-  constructor(world, position, angle) {
-    if (typeof angle == 'undefined')
-      angle = 0
+	/**
+	 * Create car.
+	 * @param {pl.World} world - planck world to create cars in.
+	 * @param {pl.Vec2} position - starting position.
+	 * @param {Number} angle - starting angle in radians.
+	 */
+	constructor(world, position, angle) {
+		if (typeof angle == 'undefined')
+			angle = 0
 
-    var carShapeDef = {
-      filterCategoryBits: collisionCategories.car,
-      filterMaskBits: collisionCategories.wall,
-      density: 1
-    }
+		var carShapeDef = {
+			filterCategoryBits: collisionCategories.car,
+			filterMaskBits: collisionCategories.wall,
+			density: 1
+		}
 
-    this.agent = null
-    this.body = world.createDynamicBody({userData: this,  position: position, angle: angle})
-    this.body.createFixture(pl.Box(carConfig.width, carConfig.length), carShapeDef)
-    this.goalsHit = 0
-    this.body.render = {fill: getRandomColor(), stroke: '#000000', width: '10px'}
-  }
+		this.agent = null
+		this.body = world.createDynamicBody({userData: this, position: position, angle: angle})
+		this.body.createFixture(pl.Box(carConfig.width, carConfig.length), carShapeDef)
+		this.body.render = {fill: getRandomColor(), stroke: '#000000', width: '10px'}
+	}
 
-  getLateralVelocity() {
-    var rightNorm = this.body.getWorldVector(pl.Vec2(1, 0))
-    return rightNorm.mul(pl.Vec2.dot(rightNorm, this.body.getLinearVelocity()))
-  }
+	/**
+	 * Get distance to nearest wall in 5 directions from front of car.
+	 * @returns {Array} List of distances.
+	 */
+	getLocation() {
+		let locations = new Array(5)
+		let point1 = pl.Vec2(this.body.getPosition())
+		point1.add(this.body.getWorldVector(pl.Vec2(0, 1)).mul(carConfig.length))
 
-  getForwardVelocity() {
-    var forwardNorm = this.body.getWorldVector(pl.Vec2(0, 1))
-    return forwardNorm.mul(pl.Vec2.dot(forwardNorm, this.body.getLinearVelocity()))
-  }
+		let currAngle = this.body.getAngle()
+		for (let i = 0; i < locations.length; ++i) {
+			let x = point1.x - carConfig.rayLength * Math.cos(currAngle)
+			let y = point1.y - carConfig.rayLength * Math.sin(currAngle)
+			let point2 = pl.Vec2(x, y)
+			RayCastClosest.reset()
+			this.body.getWorld().rayCast(point1, point2, RayCastClosest.callback)
 
-  updateFriction() {
-    // kill lateral velocity
-    var impulse = this.getLateralVelocity().mul(-this.body.getMass())
-    // if (impulse.length() > carConfig.maxLateralImpulse)
-    //   impulse.mul(carConfig.maxLateralImpulse / impulse.length())
-    this.body.applyLinearImpulse(impulse, this.body.getWorldCenter())
+			if (RayCastClosest.hit)
+				locations[i] = Math.sqrt(Math.pow(point1.x - RayCastClosest.point.x, 2) + Math.pow(point1.y - RayCastClosest.point.y, 2))
+			else
+				locations[i] = carConfig.rayLength
 
-    // kill angular velocity
-    this.body.applyAngularImpulse(.1 * this.body.getInertia() * -this.body.getAngularVelocity())
+			currAngle -= Math.PI / 4
+		}
 
-    // apply drag
-    var forwardNormal = this.getForwardVelocity()
-    var forwardSpeed = forwardNormal.normalize()
-    var dragMagnitude = -2 * forwardSpeed
-    this.body.applyForce(forwardNormal.mul(dragMagnitude), this.body.getWorldCenter())
-  }
+		return locations
+	}
 
-  updateDrive(accel) {
-    // console.log('pressing gas')
-    // find desired speed
-    var desiredSpeed = 0
-    switch(accel) {
-      case 1: desiredSpeed = carConfig.maxForwardSpeed; break;
-      case -1: desiredSpeed = carConfig.maxBackwardSpeed; break;
-      default: return
-    }
+	/**
+	 * Update drive, turn, and friction.
+	 * @param {Number} accel - how much to accel [-1, 1]
+	 * @param {Number} turn - how much to turn [-1, 1]
+	 */
+	update(accel, turn) {
+		this.updateDrive(accel)
+		this.updateTurn(turn)
+		this.updateFriction()
+	}
 
-    // find current forward speed
-    var forwardNorm = this.body.getWorldVector(pl.Vec2(0, 1))
-    var currSpeed = pl.Vec2.dot(this.getForwardVelocity(), forwardNorm)
+	/**
+	 * Apply forces to body to simulate real world car physics.
+	 */
+	updateFriction() {
+		// kill lateral velocity
+		var impulse = this.getLateralVelocity().mul(-this.body.getMass())
+		// if (impulse.length() > carConfig.maxLateralImpulse)
+		//   impulse.mul(carConfig.maxLateralImpulse / impulse.length())
+		this.body.applyLinearImpulse(impulse, this.body.getWorldCenter())
 
-    // apply necessary force
-    var force = 0
-    if (desiredSpeed > currSpeed)
-      force = carConfig.maxDriveForce
-    else if (desiredSpeed < currSpeed)
-      force = -carConfig.maxDriveForce
-    else
-      return
+		// kill angular velocity
+		this.body.applyAngularImpulse(.1 * this.body.getInertia() * -this.body.getAngularVelocity())
 
-    this.body.applyForce(forwardNorm.mul(force), this.body.getWorldCenter())
-  }
+		// apply drag
+		var forwardNormal = this.getForwardVelocity()
+		var forwardSpeed = forwardNormal.normalize()
+		var dragMagnitude = -2 * forwardSpeed
+		this.body.applyForce(forwardNormal.mul(dragMagnitude), this.body.getWorldCenter())
+	}
 
-  updateTurn(angle) {
-    // console.log('turning')
-    // find desired torque
-    if (this.body.getLinearVelocity().length() == 0)
-      return
-    var desiredTorque = 0
-    switch (angle) {
-      case 1: desiredTorque = carConfig.torque; break;
-      case -1: desiredTorque = -carConfig.torque; break;
-      default: return
-    }
+	/**
+	 * Apply forces necessary to accel (or not).
+	 * @param {Number} accel - 1 to accel forward, -1 to accel backward, 0 to not accel.
+	 */
+	updateDrive(accel) {
+		// find desired speed
+		var desiredSpeed = 0
+		switch (accel) {
+			case 1:
+				desiredSpeed = carConfig.maxForwardSpeed;
+				break;
+			case -1:
+				desiredSpeed = carConfig.maxBackwardSpeed;
+				break;
+			default:
+				return
+		}
 
-    // turn tire
-    // this.body.setAngle(this.body.getAngle() + desiredTorque)
-    this.body.applyAngularImpulse(desiredTorque)
-  }
+		// find current forward speed
+		var forwardNorm = this.body.getWorldVector(pl.Vec2(0, 1))
+		var currSpeed = pl.Vec2.dot(this.getForwardVelocity(), forwardNorm)
 
-  update(accel, turn) {
-    this.updateDrive(accel)
-    this.updateTurn(turn)
-    this.updateFriction()
-  }
+		// apply necessary force
+		var force = 0
+		if (desiredSpeed > currSpeed)
+			force = carConfig.maxDriveForce
+		else if (desiredSpeed < currSpeed)
+			force = -carConfig.maxDriveForce
+		else
+			return
 
-  getLocation(testbed, draw) {
-    let locations = new Array(5)
-    let point1 = pl.Vec2(this.body.getPosition())
-    point1.add(this.body.getWorldVector(pl.Vec2(0, 1)).mul(carConfig.length))
-    let point2
-    let currAngle = this.body.getAngle()
-    let x
-    let y
-    for (let i = 0; i < locations.length; ++i) {
-      x = point1.x - carConfig.rayLength * Math.cos(currAngle)
-      y = point1.y - carConfig.rayLength *  Math.sin(currAngle)
-      point2 = pl.Vec2(x, y)
-      RayCastClosest.reset()
-      this.body.getWorld().rayCast(point1, point2, RayCastClosest.callback)
+		this.body.applyForce(forwardNorm.mul(force), this.body.getWorldCenter())
+	}
 
-      if (RayCastClosest.hit) {
-        locations[i] = Math.sqrt(Math.pow(point1.x - RayCastClosest.point.x, 2) + Math.pow(point1.y - RayCastClosest.point.y, 2))
-        draw ? testbed.drawSegment(point1, RayCastClosest.point, testbed.color(0.4, 0.9, 0.4)) : ''
-      }
-      else {
-        locations[i] = carConfig.rayLength
-        draw ? testbed.drawSegment(point1, point2, testbed.color(0.4, 0.9, 0.4)) : ''
-      }
+	/**
+	 * Apply necessary forces to turn.
+	 * @param {Number} angle - -1 to turn left, 1 to turn right, 0 to not turn.
+	 */
+	updateTurn(angle) {
+		// find desired torque
+		if (this.body.getLinearVelocity().length() == 0)
+			return
+		var desiredTorque = 0
+		switch (angle) {
+			case 1:
+				desiredTorque = carConfig.torque;
+				break;
+			case -1:
+				desiredTorque = -carConfig.torque;
+				break;
+			default:
+				return
+		}
 
-      currAngle -= Math.PI / 4
-    }
+		// turn tire
+		this.body.applyAngularImpulse(desiredTorque)
+	}
 
-    return locations
-  }
+	/**
+	 * Get velocity in lateral direction.
+	 * @returns {pl.Vec2} velocity in lateral direction.
+	 */
+	getLateralVelocity() {
+		var rightNorm = this.body.getWorldVector(pl.Vec2(1, 0))
+		return rightNorm.mul(pl.Vec2.dot(rightNorm, this.body.getLinearVelocity()))
+	}
 
-  kill() {
-    this.body.setAwake(false)
-    this.agent.alive = false
-  }
+	/**
+	 * Get velocity in forward direction.
+	 * @returns {pl.Vec2} velocity in forward direction.
+	 */
+	getForwardVelocity() {
+		var forwardNorm = this.body.getWorldVector(pl.Vec2(0, 1))
+		return forwardNorm.mul(pl.Vec2.dot(forwardNorm, this.body.getLinearVelocity()))
+	}
 
-  updateFitness(segmentBody) {
-    if (segmentBody.getUserData() == this.goalsHit) {
-      this.goalsHit++
-      // this.agent.fitness += 1
-    }
-  }
+	/**
+	 * Kill car in terms of genetic algorithm.
+	 */
+	kill() {
+		this.body.setAwake(false)
+		this.agent.alive = false
+	}
 }

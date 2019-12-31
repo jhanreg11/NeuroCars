@@ -1,4 +1,10 @@
+/** Neural network class. */
 class NN {
+  /**
+   * Create a neural network.
+   * @param {Array|NN} layers - number of nodes in matrix, or weight matrices.
+   * @param {function} activation - activation function.
+   */
   constructor(layers, activation) {
     // set activation
     if (activation == undefined)
@@ -16,6 +22,11 @@ class NN {
       this.weights.push(new Matrix(layers[i+1], layers[i]+1))
   }
 
+  /**
+   * Feedforward input vector.
+   * @param {Array} x - input vector.
+   * @returns {Array} output vector.
+   */
   ff(x) {
     var a = x
     var z = null
@@ -29,6 +40,11 @@ class NN {
     return a
   }
 
+  /**
+   * Cross this with another NN.
+   * @param {NN} other - other NN.
+   * @returns {NN} new NN.
+   */
   crossover(other) {
     var newNN = new NN(this.weights)
 
@@ -59,17 +75,25 @@ class NN {
     return newNN
   }
 
+  /**
+   * Mutate NN.
+   * @param {Number} rate - mutation rate.
+   */
   mutate(rate) {
     for (var i = 0; i < this.weights.length; ++i) {
       for (var j = 0; j < this.weights[i].rows.length; ++j) {
         for (var k = 0; k < this.weights[i].rows[j].length; ++k) {
           if (Math.random() <= rate)
-            this.weights[i].rows[j][k] = Math.random() * 2 - 1
+            this.weights[i].rows[j][k] += Math.random() * rate - rate
         }
       }
     }
   }
 
+  /**
+   * convert NN to string.
+   * @returns {string} serialized NN.
+   */
   serialize() {
     var returnString = ''
     for (var i = 0; i < this.weights.length; ++i) {
@@ -83,6 +107,11 @@ class NN {
     return returnString
   }
 
+  /**
+   * Reconstruct NN from serialized string.
+   * @param {string} serialized_nn - NN to reconstruct.
+   * @returns {NN} new NN.
+   */
   deserialize(serialized_nn) {
     var tokens = serialized_nn.split(' ')
     var tokenCounter = 0
@@ -96,6 +125,10 @@ class NN {
     return this
   }
 
+  /**
+   * Copy this NN.
+   * @returns {NN} new NN.
+   */
   copy() {
   	var newNN = new NN(brainArchitecture)
     for (var i = 0; i < this.weights.length; ++i) {

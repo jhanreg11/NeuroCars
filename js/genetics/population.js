@@ -18,7 +18,6 @@ class Population {
 	 */
 	newGeneration() {
 		this.evalGeneration()
-		console.log('evaluated population')
 		var topPerformer1 = this.population[0]
 		var topPerformer2 = this.population[1]
 		this.population = this.population.map(() => this.createChild())
@@ -121,10 +120,11 @@ class Population {
 	 */
 	newPretrainedPopulation(trackNum) {
 		var seedList = models[trackNum]
-		console.log(seedList)
 		this.population = this.population.map(function () {
 			let i = Math.floor(Math.random() * seedList.length)
 			return new Agent(seedList[i])
 		})
+
+		this.population.slice(0, 20).forEach(agent => agent.brain.mutate(this.mutationRate))
 	}
 }

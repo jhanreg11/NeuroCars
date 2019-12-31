@@ -1,5 +1,6 @@
-var pl = planck
-
+/**
+ * Raycasting object.
+ */
 var RayCastClosest = (function() {
   var def = {};
 
