@@ -46,7 +46,7 @@ class NN {
    * @returns {NN} new NN.
    */
   crossover(other) {
-    var newNN = new NN(this.weights)
+    var newNN = new NN(this.weights.map(w => w.copy()))
 
     for (var i = 0; i < this.weights.length; ++i) {
       for (var j = 0; j < this.weights[i].rows.length; ++j) {
@@ -132,11 +132,7 @@ class NN {
   copy() {
   	var newNN = new NN(brainArchitecture)
     for (var i = 0; i < this.weights.length; ++i) {
-      for (var j = 0; j < this.weights[i].rows.length; ++j) {
-        for (var k = 0; k < this.weights[i].rows[j].length; ++k) {
-          newNN.weights[i].rows[j][k] = this.weights[i].rows[j][k]
-        }
-      }
+      newNN.weights[i] = this.weights[i].copy()
     }
     return newNN
   }

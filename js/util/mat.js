@@ -35,6 +35,21 @@ class Matrix {
   set(val, i, j) {
     this.rows[i][j] = val
   }
+
+  /**
+   * Copies this Matrix's values into a new Matrix.
+   * @returns {Matrix} copied Matrix.
+   */
+  copy() {
+    let newMat = new Matrix(this.rows.length, this.rows[0].length)
+
+    for (let i = 0; i < this.rows.length; ++i) {
+      for (let j = 0; j < this.rows[i].length; ++j)
+        newMat.set(this.rows[i][j], i, j)
+    }
+
+    return newMat
+  }
 }
 
 /**
